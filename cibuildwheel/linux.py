@@ -156,13 +156,19 @@ def build(options: BuildOptions) -> None:
                     docker.call(['rm', '-rf', built_wheel_dir])
                     docker.call(['mkdir', '-p', built_wheel_dir])
 
+                    docker.call(['pushd', container_package_dir])
+                    #docker.call([
+                    #    'pip', 'wheel',
+                    #    container_package_dir,
+                    #    '-w', built_wheel_dir,
+                    #    '--no-deps',
+                    #    *get_build_verbosity_extra_flags(options.build_verbosity)
+                    #], env=env)
                     docker.call([
-                        'pip', 'wheel',
-                        container_package_dir,
-                        '-w', built_wheel_dir,
-                        '--no-deps',
-                        *get_build_verbosity_extra_flags(options.build_verbosity)
+                        'python', 'setup.py', 'bdist_wheel',
+                        '-d', built_wheel_dir,
                     ], env=env)
+                    docker.call(['popd'])
 
                     built_wheel = docker.glob(built_wheel_dir, '*.whl')[0]
 
